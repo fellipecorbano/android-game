@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.util.DisplayMetrics;
 
 import br.edu.ifsp.androidgame.R;
 
@@ -17,14 +18,14 @@ import br.edu.ifsp.androidgame.R;
 public class Canhao {
 
     // Configurações do canhão
-    public static final int ANGULO_INICIAL = 80;
-    public static final int POS_X = 50;
+    public static final int ANGULO_INICIAL = 90;
+    public static int POS_X;
     public static final int POS_Y = 235;
     public static final int PIVO_X = 50;
     public static final int PIVO_Y = 100;
 
     // Configurações da base do canhão
-    public static final int BASE_POS_X = 36;
+    public static int BASE_POS_X;
     public static final int BASE_POS_Y = -160;
 
     private Bitmap canhao;
@@ -40,6 +41,11 @@ public class Canhao {
         // Carregar canhao e base
         canhao = BitmapFactory.decodeResource(context.getResources(), R.drawable.canhao);
         base_canhao = BitmapFactory.decodeResource(context.getResources(), R.drawable.base_canhao);
+
+        // Encontrar posicao X do canhao
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        BASE_POS_X = (metrics.widthPixels / 2) - (base_canhao.getWidth() / 2);
+        POS_X = (metrics.widthPixels / 2) - (canhao.getWidth() / 2) + 24;
 
         // Carregar som de disparo
         disparo = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
@@ -58,7 +64,6 @@ public class Canhao {
         canvas.drawBitmap(canhao, 0, 0, paint);
         canvas.rotate( ANGULO_INICIAL - 46, PIVO_X, PIVO_Y );
         canvas.translate( -POS_X, POS_Y );
-
         canvas.drawBitmap(base_canhao, BASE_POS_X, BASE_POS_Y, paint);
     }
 
