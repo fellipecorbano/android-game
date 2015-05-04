@@ -8,15 +8,17 @@ import android.view.MenuItem;
 
 public class MainActivity extends ActionBarActivity {
 
+    private GameView gameView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        // Teste github: BEto
-        // Teste github: Adalberto 
+        gameView = new GameView(this);
+        setContentView(gameView);
+
+        gameView.iniciar();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
