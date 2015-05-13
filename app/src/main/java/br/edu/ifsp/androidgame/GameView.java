@@ -9,6 +9,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.Random;
+
 import br.edu.ifsp.entity.Canhao;
 import br.edu.ifsp.entity.Cenario;
 import br.edu.ifsp.entity.Projetil;
@@ -27,14 +29,23 @@ public class GameView extends View {
     private int largura;
     private int altura;
 
+    private float angulo;
+    private double tempo;
+
     private Cenario cenario;
     private Projetil projetil;
     private Canhao canhao;
+
+    private float xClique;
+
+    private boolean atirou=false;
 
 
     public GameView(Context context) {
         super(context);
         paint.setAntiAlias(true);
+
+        angulo = 90;
 
         cenario = new Cenario(context, this);
         projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 30, 0, 0, Color.BLACK );
@@ -47,32 +58,27 @@ public class GameView extends View {
                 switch(event.getAction()){
 
                     case MotionEvent.ACTION_DOWN:
-                        /*yClique = event.getY();
-                        projetil.setVelocidadeX(0);
-                        projetil.setVelocidadeY(0);
-                        projetil.setX(xIni);
-                        projetil.setY(yIni);*/
+                        if(!atirou)
+                            xClique = event.getX();
                         break;
 
                     case MotionEvent.ACTION_UP:
-                        /*velocidadeIniX = 10f;
-                        velocidadeIniY = 10f;
-                        tempo = 0;
                         atirou = true;
-                        disparoCanhao.play(disparoId, 5, 5, 1, 0, 1f);*/
+                        tempo = 0;
                         canhao.disparar();
                         break;
 
                     case MotionEvent.ACTION_MOVE:
-                        /*float d = -(event.getY() - yClique) / 40;
+                        float d = -(event.getX() - xClique) / 40;
                         angulo += d;
+
 
                         if (angulo < 0) {
                             angulo = 0;
-                        } else if (angulo > 90) {
-                            angulo = 90;
-                        }*/
-
+                        } else if (angulo > 180) {
+                            angulo = 180;
+                        }
+                        canhao.setAngulo(angulo);
                 }
                 return true;
             }
@@ -86,12 +92,18 @@ public class GameView extends View {
         // Cenário
         cenario.desenhar(canvas, paint);
 
+        if(!atirou) {
+            float catAdj = (float) (Math.cos(Math.toRadians(angulo)) * 80);
+            float catOp = (float) (Math.sin(Math.toRadians(angulo)) * 80) - 10;
+            projetil.setX(Projetil.POS_X + catAdj);
+            projetil.setY(Projetil.POS_Y - catOp);
+        }
+
         // Projetil
         projetil.desenhar(canvas, paint);
 
         // Canhão
         canhao.desenhar(canvas, paint);
-
     }
 
     public void iniciar() {
@@ -113,6 +125,48 @@ public class GameView extends View {
                             altura = getHeight();
 
                             // TODO lógica do jogo
+
+                            if (atirou) {
+
+                                // calculando a velocidade atual
+                                double velocidadeX = 10f * Math.cos( Math.toRadians(angulo) ) * tempo;
+
+                                // precisa inverter y por causa do sistema de coordenadas.
+                                double velocidadeY = - 10f * Math.sin(Math.toRadians(angulo)) * tempo;
+
+                                projetil.setVelocidadeX((float) velocidadeX);
+                                projetil.setVelocidadeY((float) velocidadeY);
+
+                                projetil.setX( projetil.getX() + projetil.getVelocidadeX() );
+                                projetil.setY( projetil.getY() + projetil.getVelocidadeY() );
+
+                                tempo += 1;
+
+                                if (projetil.getXFim() >= largura) {
+                                    projetil.setVelocidadeX(0);
+                                    projetil.setVelocidadeY(0);
+                                    projetil.setX(Projetil.POS_X);
+                                    projetil.setY(Projetil.POS_Y);
+                                    atirou = false;
+                                }
+
+                                if (projetil.getXIni() <= 0) {
+                                    projetil.setVelocidadeX(0);
+                                    projetil.setVelocidadeY(0);
+                                    projetil.setX(Projetil.POS_X);
+                                    projetil.setY(Projetil.POS_Y);
+                                    atirou = false;
+                                }
+
+                                if (projetil.getYFim() >= altura) {
+                                    projetil.setVelocidadeX(0);
+                                    projetil.setVelocidadeY(0);
+                                    projetil.setX(Projetil.POS_X);
+                                    projetil.setY(Projetil.POS_Y);
+                                    atirou = false;
+                                }
+
+                            }
 
                             publishProgress();
                             Thread.sleep(1000 / QUADROS_POR_SEGUNDO);

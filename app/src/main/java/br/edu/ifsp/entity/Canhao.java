@@ -18,7 +18,16 @@ import br.edu.ifsp.androidgame.R;
 public class Canhao {
 
     // Configurações do canhão
-    public static final int ANGULO_INICIAL = 90;
+    public float angulo = 90;
+
+    public float getAngulo() {
+        return angulo;
+    }
+
+    public void setAngulo(float angulo) {
+        this.angulo = angulo;
+    }
+
     public static int POS_X;
     public static final int POS_Y = 235;
     public static final int PIVO_X = 50;
@@ -60,9 +69,9 @@ public class Canhao {
     public void desenhar( Canvas canvas, Paint paint ) {
 
         canvas.translate( POS_X, -POS_Y );
-        canvas.rotate( -ANGULO_INICIAL + 46, PIVO_X, PIVO_Y );
+        canvas.rotate( -angulo + 46, PIVO_X, PIVO_Y );
         canvas.drawBitmap(canhao, 0, 0, paint);
-        canvas.rotate( ANGULO_INICIAL - 46, PIVO_X, PIVO_Y );
+        canvas.rotate( angulo - 46, PIVO_X, PIVO_Y );
         canvas.translate( -POS_X, POS_Y );
         canvas.drawBitmap(base_canhao, BASE_POS_X, BASE_POS_Y, paint);
     }

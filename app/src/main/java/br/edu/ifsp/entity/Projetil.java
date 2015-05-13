@@ -10,8 +10,8 @@ import android.graphics.Paint;
 public class Projetil {
 
     // Configurações do Projétil
-    public static final int POS_X = 400;
-    public static final int POS_Y = -50 - Cenario.TAMANHO_GRAMADO;
+    public static final int POS_X = 540;
+    public static final int POS_Y = -150;
 
     private float x;
     private float y;
