@@ -1,8 +1,13 @@
 package br.edu.ifsp.entity;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.DisplayMetrics;
+import android.view.View;
+
+import java.util.Random;
 
 /**
  * Created by fcorbano on 02/05/15.
@@ -21,6 +26,57 @@ public class Alvo {
     private float gravidade;
 
     private int cor;
+
+    /**
+     * Enum com os tipos possíveis de alvos
+     */
+    public enum tipo {
+        PEQUENO, MEDIO, GRANDE, VIDA, BOMBA;
+
+        public static tipo sorteiaTipo(){
+            Random rand = new Random();
+
+            switch(rand.nextInt(tipo.values().length)) {
+                case 0: return tipo.values()[0];
+                case 1: return tipo.values()[1];
+                case 2: return tipo.values()[2];
+                case 3: return tipo.values()[3];
+                case 4: return tipo.values()[4];
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Construtor com base no tipo de alvo
+     * @param tipoAlvo
+     */
+    public Alvo(Context context, Alvo.tipo tipoAlvo) {
+
+        DisplayMetrics m = context.getResources().getDisplayMetrics();
+        int yValue = -m.heightPixels + 200;
+
+        Random r = new Random();
+        int xValue = r.nextInt(m.widthPixels);
+
+        switch(tipoAlvo) {
+            case PEQUENO:
+                setAlvo(xValue, yValue, 20, 8, 8, Color.GREEN);
+                break;
+            case MEDIO:
+                setAlvo(xValue, yValue, 30, 8, 8, Color.GREEN);
+                break;
+            case GRANDE:
+                setAlvo(xValue, yValue, 50, 8, 8, Color.GREEN);
+                break;
+            case VIDA:
+                setAlvo(xValue, yValue, 30, 8, 8, Color.RED);
+                break;
+            case BOMBA:
+                setAlvo(xValue, yValue, 30, 8, 8, Color.BLACK);
+                break;
+        }
+    }
 
     /**
      * Construtor default
@@ -46,6 +102,28 @@ public class Alvo {
      * @param cor
      */
     public Alvo(float x, float y, float raio, float velocidadeX, float velocidadeY, int cor) {
+        this.x = x;
+        this.y = y;
+        this.raio = raio;
+        this.velocidadeX = velocidadeX;
+        this.velocidadeY = velocidadeY;
+        this.cor = cor;
+        this.atrito = 0.99f;
+        this.elasticidade = 0.9f;
+        this.gravidade = 1f;
+    }
+
+    /**
+     * Setar um alvo
+     *
+     * @param x
+     * @param y
+     * @param raio
+     * @param velocidadeX
+     * @param velocidadeY
+     * @param cor
+     */
+    public void setAlvo(float x, float y, float raio, float velocidadeX, float velocidadeY, int cor) {
         this.x = x;
         this.y = y;
         this.raio = raio;

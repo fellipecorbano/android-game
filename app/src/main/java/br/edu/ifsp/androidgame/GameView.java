@@ -6,11 +6,15 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
+import br.edu.ifsp.entity.Alvo;
 import br.edu.ifsp.entity.Canhao;
 import br.edu.ifsp.entity.Cenario;
 import br.edu.ifsp.entity.Projetil;
@@ -35,6 +39,7 @@ public class GameView extends View {
     private Cenario cenario;
     private Projetil projetil;
     private Canhao canhao;
+    private List<Alvo> alvos = new ArrayList<Alvo>();;
 
     private float xClique;
 
@@ -50,6 +55,9 @@ public class GameView extends View {
         cenario = new Cenario(context, this);
         projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 30, 0, 0, Color.BLACK );
         canhao =  new Canhao(context);
+
+        // Sortear um alvo
+        //alvo = new Alvo(getContext(), Alvo.tipo.PEQUENO);
 
         setOnTouchListener(new OnTouchListener() {
             @Override
@@ -99,6 +107,11 @@ public class GameView extends View {
             projetil.setY(Projetil.POS_Y - catOp);
         }
 
+        // Alvos
+        for(Alvo alvo : alvos) {
+            alvo.desenhar(canvas, paint);
+        }
+
         // Projetil
         projetil.desenhar(canvas, paint);
 
@@ -124,7 +137,31 @@ public class GameView extends View {
                             largura = getWidth();
                             altura = getHeight();
 
-                            // TODO lógica do jogo
+                            // Sorteia com 5% de chances de sair um alvo
+                            // Podem ter no máximo 5 alvos por vez na tela
+                            Random r = new Random();
+                            if(alvos.size() < 5) {
+                                if (r.nextInt(100) < 5) {
+                                    alvos.add(new Alvo(getContext(), Alvo.tipo.sorteiaTipo()));
+                                }
+                            } else {
+                                alvos.remove(0);
+                                Log.i("[LIST]", "PRIMEIRO ELEMENTO REMOVIDO");
+                            }
+                            Log.i("[LIST]", "QUANTIDADE DE ELEMENTOS NA LISTA: " + alvos.size());
+
+                            // Se houver alvos, alterar a velocidade de cada um
+                            if(!alvos.isEmpty()) {
+                                for (Alvo alvo : alvos) {
+                                    alvo.setY(alvo.getY() + alvo.getVelocidadeY());
+                                    alvo.setVelocidadeY(alvo.getVelocidadeY() * alvo.getAtrito() + alvo.getGravidade());
+                                }
+                            }
+
+                            //TODO NECESSARIO CHECAR COLISAO DO PROJETIL COM ALVOS E VALIDAR O TIPO DO ALVO
+                            // NECESSARIO REMOVER ELEMENTOS SOMENTE QUANDO TOCAR O CHAO OU FOR ACERTADO, CASO
+                            // PASSAR O NUMERO M'AXIMO NA LISTA SOMENTE NAO CRIAR MAIS
+                            // NECESSARIO TAMB'EM AJUSTAR OS PARAMETROS DE CONFIG DE VELOCIDADE, ETC
 
                             if (atirou) {
 
