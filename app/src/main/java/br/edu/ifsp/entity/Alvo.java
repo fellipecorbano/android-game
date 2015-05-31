@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 
 import java.util.Random;
@@ -25,6 +26,7 @@ public class Alvo {
     private float elasticidade;
     private float gravidade;
 
+    private tipo tipoAlvo;
     private int cor;
 
     /**
@@ -78,23 +80,23 @@ public class Alvo {
         float xValue = r.nextFloat() * (max - min) + min;
 
         // Sorteia a velocidade do alvo
-        //TODO
+        int vel = r.nextInt(5) + 2;
 
         switch(tipoAlvo) {
             case PEQUENO:
-                setAlvo(xValue, yValue, 20, 8, 8, Color.GREEN);
+                setAlvo(xValue, yValue, 20, 0, vel, Color.GREEN, tipo.PEQUENO);
                 break;
             case MEDIO:
-                setAlvo(xValue, yValue, 30, 8, 8, Color.GREEN);
+                setAlvo(xValue, yValue, 30, 0, vel, Color.GREEN, tipo.MEDIO);
                 break;
             case GRANDE:
-                setAlvo(xValue, yValue, 50, 8, 8, Color.GREEN);
+                setAlvo(xValue, yValue, 50, 0, vel, Color.GREEN, tipo.GRANDE);
                 break;
             case VIDA:
-                setAlvo(xValue, yValue, 30, 8, 8, Color.RED);
+                setAlvo(xValue, yValue, 30, 0, vel, Color.RED, tipo.VIDA);
                 break;
             case BOMBA:
-                setAlvo(xValue, yValue, 30, 8, 8, Color.BLACK);
+                setAlvo(xValue, yValue, 30, 0, vel, Color.BLACK, tipo.BOMBA);
                 break;
         }
     }
@@ -110,6 +112,7 @@ public class Alvo {
         this.elasticidade = 0.9f;
         this.gravidade = 1f;
         this.cor = Color.BLACK;
+        this.tipoAlvo = tipo.sorteiaTipo();
     }
 
     /**
@@ -129,6 +132,7 @@ public class Alvo {
         this.velocidadeX = velocidadeX;
         this.velocidadeY = velocidadeY;
         this.cor = cor;
+        this.tipoAlvo = tipo.sorteiaTipo();
         this.atrito = 0.99f;
         this.elasticidade = 0.9f;
         this.gravidade = 1f;
@@ -144,7 +148,7 @@ public class Alvo {
      * @param velocidadeY
      * @param cor
      */
-    public void setAlvo(float x, float y, float raio, float velocidadeX, float velocidadeY, int cor) {
+    public void setAlvo(float x, float y, float raio, float velocidadeX, float velocidadeY, int cor, tipo tipoAlvo) {
         this.x = x;
         this.y = y;
         this.raio = raio;
@@ -154,6 +158,7 @@ public class Alvo {
         this.atrito = 0.99f;
         this.elasticidade = 0.9f;
         this.gravidade = 1f;
+        this.tipoAlvo = tipoAlvo;
     }
 
     /**
@@ -165,6 +170,24 @@ public class Alvo {
         paint.setStyle( Paint.Style.FILL );
         paint.setColor(cor);
         canvas.drawCircle( x, y, raio, paint );
+    }
+
+    public boolean colidir(Projetil projetil) {
+        double a = Math.pow(this.getX() - projetil.getX(), 2);
+        double b = Math.pow(this.getY() - projetil.getY(), 2);
+        double h = Math.sqrt(a + b);
+
+        return h <= (this.getRaio() + projetil.getRaio());
+    }
+
+    public boolean acertouChao() {
+
+        if(this.getYFim() > -Cenario.TAMANHO_GRAMADO && !this.tipoAlvo.equals(tipo.VIDA)) {
+            Log.i("[acertouChao]", "Acertou o chaou");
+            return true;
+        }
+
+        return false;
     }
 
     public float getYIni(){

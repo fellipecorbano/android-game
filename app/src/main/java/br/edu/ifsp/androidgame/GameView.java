@@ -36,6 +36,9 @@ public class GameView extends View {
     private float angulo;
     private double tempo;
 
+    private static int vidas;
+    private static int pontos;
+
     private Cenario cenario;
     private Projetil projetil;
     private Canhao canhao;
@@ -51,6 +54,8 @@ public class GameView extends View {
         paint.setAntiAlias(true);
 
         angulo = 90;
+        vidas = 3;
+        pontos = 0;
 
         cenario = new Cenario(context, this);
         projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 30, 0, 0, Color.BLACK );
@@ -114,6 +119,11 @@ public class GameView extends View {
 
         // Canhão
         canhao.desenhar(canvas, paint);
+
+        // Dados do jogo
+        paint.setTextSize(46);
+        canvas.drawText("Pontos: " + pontos, 30, -30, paint);
+        canvas.drawText("Vidas: " + vidas,getWidth() - 200, -30, paint);
     }
 
     public void iniciar() {
@@ -145,9 +155,20 @@ public class GameView extends View {
                                 alvos.remove(0);
                             }
 
-                            // Se houver alvos, alterar a velocidade de cada um
+                            // Se houver alvos
                             if(!alvos.isEmpty()) {
                                 for (Alvo alvo : alvos) {
+                                    // Checar a colisao
+                                    if(alvo.colidir(projetil)) {
+                                        //alvos.remove(alvo);
+                                        Log.i("[ALVO]", "Acertou o alvo");
+                                        pontos++; // TODO refazer a contagem de pontos para cada tipo de alvo
+                                    } else if(alvo.acertouChao()){
+                                        // TODO remover alvo da lista
+                                        vidas--;
+                                    };
+
+                                    // Alterar a velocidade
                                     alvo.setY(alvo.getY() + alvo.getVelocidadeY());
                                     alvo.setVelocidadeY(alvo.getVelocidadeY() * alvo.getAtrito() + alvo.getGravidade());
                                 }
@@ -157,6 +178,7 @@ public class GameView extends View {
                             // NECESSARIO REMOVER ELEMENTOS SOMENTE QUANDO TOCAR O CHAO OU FOR ACERTADO, CASO
                             // PASSAR O NUMERO M'AXIMO NA LISTA SOMENTE NAO CRIAR MAIS
                             // NECESSARIO TAMB'EM AJUSTAR OS PARAMETROS DE CONFIG DE VELOCIDADE, ETC
+
 
                             if (atirou) {
 
