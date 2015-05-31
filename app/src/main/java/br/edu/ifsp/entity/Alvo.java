@@ -31,33 +31,54 @@ public class Alvo {
      * Enum com os tipos possíveis de alvos
      */
     public enum tipo {
-        PEQUENO, MEDIO, GRANDE, VIDA, BOMBA;
+        PEQUENO(0,30),
+        MEDIO(31,60),
+        GRANDE(61,90),
+        VIDA(91,95),
+        BOMBA(96,100);
+
+        int chanceMin;
+        int chanceMax;
+
+        private tipo(int chanceMin, int chanceMax) {
+            this.chanceMin = chanceMin;
+            this.chanceMax = chanceMax;
+        }
 
         public static tipo sorteiaTipo(){
             Random rand = new Random();
+            int sorteio = rand.nextInt(100);
 
-            switch(rand.nextInt(tipo.values().length)) {
-                case 0: return tipo.values()[0];
-                case 1: return tipo.values()[1];
-                case 2: return tipo.values()[2];
-                case 3: return tipo.values()[3];
-                case 4: return tipo.values()[4];
-            }
+            if(sorteio >= PEQUENO.chanceMin && sorteio <= PEQUENO.chanceMax) return tipo.PEQUENO;
+            if(sorteio >= MEDIO.chanceMin && sorteio <= MEDIO.chanceMax) return tipo.MEDIO;
+            if(sorteio >= GRANDE.chanceMin && sorteio <= GRANDE.chanceMax) return tipo.GRANDE;
+            if(sorteio >= VIDA.chanceMin && sorteio <= VIDA.chanceMax) return tipo.VIDA;
+            if(sorteio >= BOMBA.chanceMin && sorteio <= BOMBA.chanceMax) return tipo.BOMBA;
+
             return null;
         }
     }
 
     /**
      * Construtor com base no tipo de alvo
-     * @param tipoAlvo
      */
-    public Alvo(Context context, Alvo.tipo tipoAlvo) {
+    public Alvo(Context context) {
 
+        Random r = new Random();
+
+        // Sorteia alvo
+        Alvo.tipo tipoAlvo = tipo.sorteiaTipo();
+
+        // Sorteia posicao X e seta posicao Y
         DisplayMetrics m = context.getResources().getDisplayMetrics();
         int yValue = -m.heightPixels + 200;
 
-        Random r = new Random();
-        int xValue = r.nextInt(m.widthPixels);
+        float max = m.widthPixels - this.getRaio()*2;
+        float min = 0 + this.getRaio()*2;
+        float xValue = r.nextFloat() * (max - min) + min;
+
+        // Sorteia a velocidade do alvo
+        //TODO
 
         switch(tipoAlvo) {
             case PEQUENO:

@@ -56,9 +56,6 @@ public class GameView extends View {
         projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 30, 0, 0, Color.BLACK );
         canhao =  new Canhao(context);
 
-        // Sortear um alvo
-        //alvo = new Alvo(getContext(), Alvo.tipo.PEQUENO);
-
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -142,13 +139,11 @@ public class GameView extends View {
                             Random r = new Random();
                             if(alvos.size() < 5) {
                                 if (r.nextInt(100) < 5) {
-                                    alvos.add(new Alvo(getContext(), Alvo.tipo.sorteiaTipo()));
+                                    alvos.add(new Alvo(getContext()));
                                 }
                             } else {
                                 alvos.remove(0);
-                                Log.i("[LIST]", "PRIMEIRO ELEMENTO REMOVIDO");
                             }
-                            Log.i("[LIST]", "QUANTIDADE DE ELEMENTOS NA LISTA: " + alvos.size());
 
                             // Se houver alvos, alterar a velocidade de cada um
                             if(!alvos.isEmpty()) {
