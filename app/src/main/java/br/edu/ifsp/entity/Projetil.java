@@ -33,17 +33,17 @@ public class Projetil {
     /**
      * Construtor default
      */
-    public Projetil(){
+   /* public Projetil(){
         this.raio = 10;
-        this.velocidadeX = 8f;
-        this.velocidadeY = 8f;
+        this.velocidadeX = 5f;
+        this.velocidadeY = 5f;
         this.atrito = 0.99f;
         this.elasticidade = 0.9f;
         this.gravidade = 1f;
         this.tempo = 0;
         this.atirou = false;
         this.cor = Color.BLACK;
-    }
+    }*/
 
 
 
@@ -64,8 +64,8 @@ public class Projetil {
         this.elasticidade = 0.9f;
         this.gravidade = 1f;
         this.angulo = angulo;
-        this.velocidadeX = 8f;
-        this.velocidadeY = 8f;
+        this.velocidadeX = 5f;
+        this.velocidadeY = 5f;
 
     }
 

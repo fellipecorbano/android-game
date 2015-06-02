@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,7 @@ public class GameView extends View {
     private Projetil projetil;
     private Canhao canhao;
     private List<Alvo> alvos = new ArrayList<Alvo>();
+    private List<Alvo> alvosAtingidos = new ArrayList<Alvo>();
     private List<Projetil> projetils = new ArrayList<Projetil>();
 
     private float xClique;
@@ -62,6 +64,7 @@ public class GameView extends View {
         canhao =  new Canhao(context);
         projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 30, Color.BLACK , angulo);
 
+
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -69,13 +72,14 @@ public class GameView extends View {
                 switch(event.getAction()){
 
                     case MotionEvent.ACTION_DOWN:
-                        if(!atirou)
-                            xClique = event.getX();
+                        atirou = false;
+                        projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 30, Color.BLACK , angulo);
+                        xClique = event.getX();
                         break;
 
                     case MotionEvent.ACTION_UP:
-                        //atirou = true;
-                        //tempo = 0;
+                        atirou = true;
+
                         projetil.setAtirou(true);
                         projetils.add(projetil);
                         canhao.disparar();
@@ -117,8 +121,11 @@ public class GameView extends View {
         }
 
         // Projetil
-        for(Projetil projetil : projetils) {
-            projetil.desenhar(canvas, paint);
+        projetil.desenhar(canvas, paint);
+
+        // Projetil em movimento
+        for(Projetil p : projetils) {
+            p.desenhar(canvas, paint);
         }
 
         // Canhão
@@ -235,6 +242,7 @@ public class GameView extends View {
 
                             }
 
+
                             publishProgress();
                             Thread.sleep(1000 / QUADROS_POR_SEGUNDO);
 
@@ -248,8 +256,11 @@ public class GameView extends View {
 
                 }
 
+
+
                 @Override
                 protected void onProgressUpdate(Void... values) {
+                    //limparProjetil();
                     invalidate();
                 }
 
@@ -258,6 +269,17 @@ public class GameView extends View {
         }
 
 
+
+    }
+
+    private void limparProjetil(){
+        System.out.println(projetils.size());
+        for(int i= 0; i < projetils.size(); i++){
+            if(!projetils.get(i).isAtirou()){
+                projetils.remove(i);
+            }
+        }
+        System.out.println(projetils.size());
 
     }
 
