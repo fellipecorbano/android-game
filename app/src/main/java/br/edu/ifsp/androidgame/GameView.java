@@ -42,7 +42,8 @@ public class GameView extends View {
     private Cenario cenario;
     private Projetil projetil;
     private Canhao canhao;
-    private List<Alvo> alvos = new ArrayList<Alvo>();;
+    private List<Alvo> alvos = new ArrayList<Alvo>();
+    private List<Projetil> projetils = new ArrayList<Projetil>();
 
     private float xClique;
 
@@ -58,8 +59,8 @@ public class GameView extends View {
         pontos = 0;
 
         cenario = new Cenario(context, this);
-        projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 30, 0, 0, Color.BLACK );
         canhao =  new Canhao(context);
+        projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 30, Color.BLACK , angulo);
 
         setOnTouchListener(new OnTouchListener() {
             @Override
@@ -73,22 +74,23 @@ public class GameView extends View {
                         break;
 
                     case MotionEvent.ACTION_UP:
-                        atirou = true;
-                        tempo = 0;
+                        //atirou = true;
+                        //tempo = 0;
+                        projetil.setAtirou(true);
+                        projetils.add(projetil);
                         canhao.disparar();
                         break;
 
                     case MotionEvent.ACTION_MOVE:
                         float d = -(event.getX() - xClique) / 40;
                         angulo += d;
-
-
                         if (angulo < 0) {
                             angulo = 0;
                         } else if (angulo > 180) {
                             angulo = 180;
                         }
                         canhao.setAngulo(angulo);
+                        projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 30, Color.BLACK , angulo);
                 }
                 return true;
             }
@@ -115,7 +117,9 @@ public class GameView extends View {
         }
 
         // Projetil
-        projetil.desenhar(canvas, paint);
+        for(Projetil projetil : projetils) {
+            projetil.desenhar(canvas, paint);
+        }
 
         // Canhão
         canhao.desenhar(canvas, paint);
@@ -123,7 +127,7 @@ public class GameView extends View {
         // Dados do jogo
         paint.setTextSize(46);
         canvas.drawText("Pontos: " + pontos, 30, -30, paint);
-        canvas.drawText("Vidas: " + vidas,getWidth() - 200, -30, paint);
+        canvas.drawText("Vidas: " + vidas, getWidth() - 200, -30, paint);
     }
 
     public void iniciar() {
@@ -151,7 +155,8 @@ public class GameView extends View {
                                 if (r.nextInt(100) < 5) {
                                     alvos.add(new Alvo(getContext()));
                                 }
-                            } else {
+                            }
+                            else {
                                 alvos.remove(0);
                             }
 
@@ -180,9 +185,39 @@ public class GameView extends View {
                             // NECESSARIO TAMB'EM AJUSTAR OS PARAMETROS DE CONFIG DE VELOCIDADE, ETC
 
 
-                            if (atirou) {
+                            if (!projetils.isEmpty()) {
+                                for (Projetil projetil : projetils) {
+                                   projetil.movimento();
 
-                                // calculando a velocidade atual
+                                    if (projetil.getXFim() >= largura) {
+                                        /*projetil.setVelocidadeX(0);
+                                        projetil.setVelocidadeY(0);
+                                        projetil.setX(Projetil.POS_X);
+                                        projetil.setY(Projetil.POS_Y);
+                                        atirou = false;*/
+                                        projetil.setAtirou(false);
+                                    }
+
+                                    if (projetil.getXIni() <= 0) {
+                                        /*projetil.setVelocidadeX(0);
+                                        projetil.setVelocidadeY(0);
+                                        projetil.setX(Projetil.POS_X);
+                                        projetil.setY(Projetil.POS_Y);
+                                        atirou = false;*/
+                                        projetil.setAtirou(false);
+                                    }
+
+                                    if (projetil.getYIni() >= altura) {
+                                        /*projetil.setVelocidadeX(0);
+                                        projetil.setVelocidadeY(0);
+                                        projetil.setX(Projetil.POS_X);
+                                        projetil.setY(Projetil.POS_Y);
+                                        atirou = false;*/
+                                        projetil.setAtirou(false);
+                                    }
+                                }
+
+                                /*// calculando a velocidade atual
                                 double velocidadeX = 10f * Math.cos( Math.toRadians(angulo) ) * tempo;
 
                                 // precisa inverter y por causa do sistema de coordenadas.
@@ -194,31 +229,9 @@ public class GameView extends View {
                                 projetil.setX( projetil.getX() + projetil.getVelocidadeX() );
                                 projetil.setY( projetil.getY() + projetil.getVelocidadeY() );
 
-                                tempo += 1;
+                                tempo += 1;*/
 
-                                if (projetil.getXFim() >= largura) {
-                                    projetil.setVelocidadeX(0);
-                                    projetil.setVelocidadeY(0);
-                                    projetil.setX(Projetil.POS_X);
-                                    projetil.setY(Projetil.POS_Y);
-                                    atirou = false;
-                                }
 
-                                if (projetil.getXIni() <= 0) {
-                                    projetil.setVelocidadeX(0);
-                                    projetil.setVelocidadeY(0);
-                                    projetil.setX(Projetil.POS_X);
-                                    projetil.setY(Projetil.POS_Y);
-                                    atirou = false;
-                                }
-
-                                if (projetil.getYFim() >= altura) {
-                                    projetil.setVelocidadeX(0);
-                                    projetil.setVelocidadeY(0);
-                                    projetil.setX(Projetil.POS_X);
-                                    projetil.setY(Projetil.POS_Y);
-                                    atirou = false;
-                                }
 
                             }
 
@@ -243,6 +256,8 @@ public class GameView extends View {
             }.execute();
 
         }
+
+
 
     }
 

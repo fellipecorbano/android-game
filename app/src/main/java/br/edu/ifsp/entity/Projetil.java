@@ -24,6 +24,10 @@ public class Projetil {
     private float elasticidade;
     private float gravidade;
 
+    private float angulo;
+    private boolean atirou;
+    private int tempo;
+
     private int cor;
 
     /**
@@ -31,13 +35,17 @@ public class Projetil {
      */
     public Projetil(){
         this.raio = 10;
-        this.velocidadeX = 8;
-        this.velocidadeY = 8;
+        this.velocidadeX = 8f;
+        this.velocidadeY = 8f;
         this.atrito = 0.99f;
         this.elasticidade = 0.9f;
         this.gravidade = 1f;
+        this.tempo = 0;
+        this.atirou = false;
         this.cor = Color.BLACK;
     }
+
+
 
     /**
      * Construtor Projetil
@@ -45,20 +53,20 @@ public class Projetil {
      * @param x
      * @param y
      * @param raio
-     * @param velocidadeX
-     * @param velocidadeY
      * @param cor
      */
-    public Projetil(float x, float y, float raio, float velocidadeX, float velocidadeY, int cor) {
+    public Projetil(float x, float y, float raio, int cor, float angulo) {
         this.x = x;
         this.y = y;
         this.raio = raio;
-        this.velocidadeX = velocidadeX;
-        this.velocidadeY = velocidadeY;
         this.cor = cor;
         this.atrito = 0.99f;
         this.elasticidade = 0.9f;
         this.gravidade = 1f;
+        this.angulo = angulo;
+        this.velocidadeX = 8f;
+        this.velocidadeY = 8f;
+
     }
 
     /**
@@ -70,6 +78,31 @@ public class Projetil {
         paint.setStyle( Paint.Style.FILL );
         paint.setColor(cor);
         canvas.drawCircle( x, y, raio, paint );
+    }
+
+    public void movimento(){
+        // calculando a velocidade atual
+        double vX = velocidadeX * Math.cos( Math.toRadians(angulo) ) * tempo;
+
+        // precisa inverter y por causa do sistema de coordenadas.
+        double vY = - velocidadeY * Math.sin(Math.toRadians(angulo)) * tempo;
+
+        //projetil.setVelocidadeX((float) velocidadeX);
+        //projetil.setVelocidadeY((float) velocidadeY);
+
+        x = (float) (x + vX);
+        y = (float) (y + vY);
+
+        tempo += 1;
+
+    }
+
+    public boolean isAtirou() {
+        return atirou;
+    }
+
+    public void setAtirou(boolean atirou) {
+        this.atirou = atirou;
     }
 
     public float getYIni(){
