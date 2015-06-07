@@ -155,34 +155,36 @@ public class GameView extends View {
                             largura = getWidth();
                             altura = getHeight();
 
-                            // Sorteia com 5% de chances de sair um alvo
+                            limparAlvosAtingidos();
+
+                            // Sorteia com 3% de chances de sair um alvo
                             // Podem ter no máximo 5 alvos por vez na tela
                             Random r = new Random();
                             if(alvos.size() < 5) {
-                                if (r.nextInt(100) < 5) {
+                                if (r.nextInt(100) < 3) {
                                     alvos.add(new Alvo(getContext()));
                                 }
-                            }
-                            else {
-                                alvos.remove(0);
                             }
 
                             // Se houver alvos
                             if(!alvos.isEmpty()) {
                                 for (Alvo alvo : alvos) {
-                                    // Checar a colisao
-                                    if(alvo.colidir(projetil)) {
-                                        //alvos.remove(alvo);
-                                        Log.i("[ALVO]", "Acertou o alvo");
-                                        pontos++; // TODO refazer a contagem de pontos para cada tipo de alvo
-                                    } else if(alvo.acertouChao()){
-                                        // TODO remover alvo da lista
-                                        vidas--;
-                                    };
 
                                     // Alterar a velocidade
                                     alvo.setY(alvo.getY() + alvo.getVelocidadeY());
                                     alvo.setVelocidadeY(alvo.getVelocidadeY() * alvo.getAtrito() + alvo.getGravidade());
+
+                                    // Checar a colisao
+                                    if(alvo.colidir(projetil)) {
+                                        // remover alvo da lista
+                                        alvosAtingidos.add(alvo);
+                                        pontos++; // TODO refazer a contagem de pontos para cada tipo de alvo
+                                    } else if(alvo.acertouChao()){
+                                        // remover alvo da lista
+                                        alvosAtingidos.add(alvo);
+                                        vidas--;
+                                        checkEndGame();
+                                    }
                                 }
                             }
 
@@ -256,20 +258,36 @@ public class GameView extends View {
 
                 }
 
-
-
                 @Override
                 protected void onProgressUpdate(Void... values) {
                     //limparProjetil();
                     invalidate();
                 }
 
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    if(vidas==0){
+                        Toast.makeText(getContext(), "Fim de jogo", Toast.LENGTH_LONG).show();
+                    }
+                }
             }.execute();
 
         }
 
 
 
+    }
+
+    private void checkEndGame() {
+        if(vidas == 0) {
+            parar();
+        }
+    }
+
+    private void limparAlvosAtingidos() {
+        for(Alvo alvoAtingido : alvosAtingidos){
+            alvos.remove(alvoAtingido);
+        }
     }
 
     private void limparProjetil(){

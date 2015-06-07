@@ -80,7 +80,7 @@ public class Alvo {
         float xValue = r.nextFloat() * (max - min) + min;
 
         // Sorteia a velocidade do alvo
-        int vel = r.nextInt(5) + 2;
+        int vel = r.nextInt(3) + 1;
 
         switch(tipoAlvo) {
             case PEQUENO:
@@ -182,7 +182,7 @@ public class Alvo {
 
     public boolean acertouChao() {
 
-        if(this.getYFim() > -Cenario.TAMANHO_GRAMADO && !this.tipoAlvo.equals(tipo.VIDA)) {
+        if(this.getYFim() > -Cenario.TAMANHO_GRAMADO && !(this.tipoAlvo.equals(tipo.VIDA) || this.tipoAlvo.equals(tipo.BOMBA)) ) {
             Log.i("[acertouChao]", "Acertou o chaou");
             return true;
         }
@@ -278,4 +278,38 @@ public class Alvo {
         this.cor = cor;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Alvo alvo = (Alvo) o;
+
+        if (Float.compare(alvo.x, x) != 0) return false;
+        if (Float.compare(alvo.y, y) != 0) return false;
+        if (Float.compare(alvo.raio, raio) != 0) return false;
+        if (Float.compare(alvo.velocidadeX, velocidadeX) != 0) return false;
+        if (Float.compare(alvo.velocidadeY, velocidadeY) != 0) return false;
+        if (Float.compare(alvo.atrito, atrito) != 0) return false;
+        if (Float.compare(alvo.elasticidade, elasticidade) != 0) return false;
+        if (Float.compare(alvo.gravidade, gravidade) != 0) return false;
+        if (cor != alvo.cor) return false;
+        return tipoAlvo == alvo.tipoAlvo;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (x != +0.0f ? Float.floatToIntBits(x) : 0);
+        result = 31 * result + (y != +0.0f ? Float.floatToIntBits(y) : 0);
+        result = 31 * result + (raio != +0.0f ? Float.floatToIntBits(raio) : 0);
+        result = 31 * result + (velocidadeX != +0.0f ? Float.floatToIntBits(velocidadeX) : 0);
+        result = 31 * result + (velocidadeY != +0.0f ? Float.floatToIntBits(velocidadeY) : 0);
+        result = 31 * result + (atrito != +0.0f ? Float.floatToIntBits(atrito) : 0);
+        result = 31 * result + (elasticidade != +0.0f ? Float.floatToIntBits(elasticidade) : 0);
+        result = 31 * result + (gravidade != +0.0f ? Float.floatToIntBits(gravidade) : 0);
+        result = 31 * result + (tipoAlvo != null ? tipoAlvo.hashCode() : 0);
+        result = 31 * result + cor;
+        return result;
+    }
 }
