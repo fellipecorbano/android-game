@@ -97,6 +97,14 @@ public class Projetil {
 
     }
 
+    public boolean colidir(Alvo alvo) {
+        double a = Math.pow(this.getX() - alvo.getX(), 2);
+        double b = Math.pow(this.getY() - alvo.getY(), 2);
+        double h = Math.sqrt(a + b);
+
+        return h <= (this.getRaio() + alvo.getRaio());
+    }
+
     public boolean isAtirou() {
         return atirou;
     }

@@ -33,18 +33,21 @@ public class Alvo {
      * Enum com os tipos possíveis de alvos
      */
     public enum tipo {
-        PEQUENO(0,30),
-        MEDIO(31,60),
-        GRANDE(61,90),
-        VIDA(91,95),
-        BOMBA(96,100);
+        // NAME(MIN%, MAX%, PONTOS)
+        PEQUENO(0,30, 7),
+        MEDIO(31,60, 5),
+        GRANDE(61,90, 3),
+        VIDA(91,95, 0),
+        BOMBA(96,100, 0);
 
         int chanceMin;
         int chanceMax;
+        int pontos;
 
-        private tipo(int chanceMin, int chanceMax) {
+        private tipo(int chanceMin, int chanceMax, int pontos) {
             this.chanceMin = chanceMin;
             this.chanceMax = chanceMax;
+            this.pontos = pontos;
         }
 
         public static tipo sorteiaTipo(){
@@ -80,14 +83,14 @@ public class Alvo {
         float xValue = r.nextFloat() * (max - min) + min;
 
         // Sorteia a velocidade do alvo
-        int vel = r.nextInt(3) + 1;
+        int vel = r.nextInt(6) + 2;
 
         switch(tipoAlvo) {
             case PEQUENO:
-                setAlvo(xValue, yValue, 20, 0, vel, Color.GREEN, tipo.PEQUENO);
+                setAlvo(xValue, yValue, 30, 0, vel, Color.GREEN, tipo.PEQUENO);
                 break;
             case MEDIO:
-                setAlvo(xValue, yValue, 30, 0, vel, Color.GREEN, tipo.MEDIO);
+                setAlvo(xValue, yValue, 40, 0, vel, Color.GREEN, tipo.MEDIO);
                 break;
             case GRANDE:
                 setAlvo(xValue, yValue, 50, 0, vel, Color.GREEN, tipo.GRANDE);
@@ -190,6 +193,10 @@ public class Alvo {
         return false;
     }
 
+    public int getPontos() {
+        return this.tipoAlvo.pontos;
+    }
+
     public float getYIni(){
         return y - raio;
     }
@@ -276,6 +283,14 @@ public class Alvo {
 
     public void setCor(int cor) {
         this.cor = cor;
+    }
+
+    public tipo getTipoAlvo() {
+        return tipoAlvo;
+    }
+
+    public void setTipoAlvo(tipo tipoAlvo) {
+        this.tipoAlvo = tipoAlvo;
     }
 
     @Override

@@ -27,6 +27,9 @@ public class GameView extends View {
 
     // Configurações da View
     private static final int QUADROS_POR_SEGUNDO = 20;
+    private static final int CONFIG_VIDAS = 5;
+    private static final int CONFIG_PONTOS = 0;
+    private static final int CONFIG_ANGULO = 90;
 
     private Paint paint = new Paint();
 
@@ -35,7 +38,6 @@ public class GameView extends View {
     private int altura;
 
     private float angulo;
-    private double tempo;
 
     private static int vidas;
     private static int pontos;
@@ -50,43 +52,50 @@ public class GameView extends View {
     private float xClique;
 
     private boolean atirou=false;
+    private boolean acertouBomba=false;
 
 
     public GameView(Context context) {
         super(context);
         paint.setAntiAlias(true);
 
-        angulo = 90;
-        vidas = 3;
-        pontos = 0;
+        angulo = CONFIG_ANGULO;
+        vidas = CONFIG_VIDAS;
+        pontos = CONFIG_PONTOS;
 
         cenario = new Cenario(context, this);
         canhao =  new Canhao(context);
-        projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 30, Color.BLACK , angulo);
+        projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 20, Color.BLACK , angulo);
 
 
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
-                switch(event.getAction()){
+                switch (event.getAction()) {
 
                     case MotionEvent.ACTION_DOWN:
-                        atirou = false;
-                        projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 30, Color.BLACK , angulo);
-                        xClique = event.getX();
+                        if (executando) {
+                            atirou = false;
+                            projetil = new Projetil(Projetil.POS_X, Projetil.POS_Y, 20, Color.BLACK, angulo);
+                            xClique = event.getX();
+                        } else {
+                            restartGame();
+                        }
                         break;
 
                     case MotionEvent.ACTION_UP:
-                        atirou = true;
+                        if (executando) {
+                            atirou = true;
+                            projetil.setAtirou(true);
+                            projetils.add(projetil);
+                            canhao.disparar();
+                        }
 
-                        projetil.setAtirou(true);
-                        projetils.add(projetil);
-                        canhao.disparar();
                         break;
 
                     case MotionEvent.ACTION_MOVE:
-                        float d = -(event.getX() - xClique) / 40;
+                        float d = -(event.getX() - xClique) / 50;
                         angulo += d;
                         if (angulo < 0) {
                             angulo = 0;
@@ -94,7 +103,7 @@ public class GameView extends View {
                             angulo = 180;
                         }
                         canhao.setAngulo(angulo);
-                        projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 30, Color.BLACK , angulo);
+                        projetil = new Projetil(Projetil.POS_X, Projetil.POS_Y, 20, Color.BLACK, angulo);
                 }
                 return true;
             }
@@ -156,6 +165,7 @@ public class GameView extends View {
                             altura = getHeight();
 
                             limparAlvosAtingidos();
+                            limparProjeteis();
 
                             // Sorteia com 3% de chances de sair um alvo
                             // Podem ter no máximo 5 alvos por vez na tela
@@ -167,7 +177,7 @@ public class GameView extends View {
                             }
 
                             // Se houver alvos
-                            if(!alvos.isEmpty()) {
+                            /*if(!alvos.isEmpty()) {
                                 for (Alvo alvo : alvos) {
 
                                     // Alterar a velocidade
@@ -176,97 +186,87 @@ public class GameView extends View {
 
                                     // Checar a colisao
                                     if(alvo.colidir(projetil)) {
-                                        // remover alvo da lista
                                         alvosAtingidos.add(alvo);
-                                        pontos++; // TODO refazer a contagem de pontos para cada tipo de alvo
+                                        pontos+=alvo.getPontos();
+
+                                        checkAlvosEspeciais(alvo);
+
                                     } else if(alvo.acertouChao()){
-                                        // remover alvo da lista
                                         alvosAtingidos.add(alvo);
                                         vidas--;
                                         checkEndGame();
                                     }
                                 }
+                            }*/
+
+                            for (Alvo alvo : alvos) {
+                                // Alterar a velocidade
+                                alvo.setY(alvo.getY() + alvo.getVelocidadeY());
+                                alvo.setVelocidadeY(alvo.getVelocidadeY() * alvo.getAtrito() + alvo.getGravidade());
                             }
-
-                            //TODO NECESSARIO CHECAR COLISAO DO PROJETIL COM ALVOS E VALIDAR O TIPO DO ALVO
-                            // NECESSARIO REMOVER ELEMENTOS SOMENTE QUANDO TOCAR O CHAO OU FOR ACERTADO, CASO
-                            // PASSAR O NUMERO M'AXIMO NA LISTA SOMENTE NAO CRIAR MAIS
-                            // NECESSARIO TAMB'EM AJUSTAR OS PARAMETROS DE CONFIG DE VELOCIDADE, ETC
-
 
                             if (!projetils.isEmpty()) {
+                                Log.i("LOG", "Projetil com " + projetils.size());
                                 for (Projetil projetil : projetils) {
-                                   projetil.movimento();
+                                    projetil.movimento();
 
-                                    if (projetil.getXFim() >= largura) {
-                                        /*projetil.setVelocidadeX(0);
-                                        projetil.setVelocidadeY(0);
-                                        projetil.setX(Projetil.POS_X);
-                                        projetil.setY(Projetil.POS_Y);
-                                        atirou = false;*/
+                                    if (projetil.getXFim() >= largura ||
+                                            projetil.getXIni() <= 0 ||
+                                            projetil.getYIni() >= altura) {
                                         projetil.setAtirou(false);
                                     }
 
-                                    if (projetil.getXIni() <= 0) {
-                                        /*projetil.setVelocidadeX(0);
-                                        projetil.setVelocidadeY(0);
-                                        projetil.setX(Projetil.POS_X);
-                                        projetil.setY(Projetil.POS_Y);
-                                        atirou = false;*/
-                                        projetil.setAtirou(false);
-                                    }
+                                    // Para o projetil corrente, verificar se colidiu com algum dos alvos
+                                    if(!alvos.isEmpty()) {
+                                        for (Alvo alvo : alvos) {
 
-                                    if (projetil.getYIni() >= altura) {
-                                        /*projetil.setVelocidadeX(0);
-                                        projetil.setVelocidadeY(0);
-                                        projetil.setX(Projetil.POS_X);
-                                        projetil.setY(Projetil.POS_Y);
-                                        atirou = false;*/
-                                        projetil.setAtirou(false);
+                                            // Checar a colisao
+                                            if(projetil.colidir(alvo)) {
+                                                alvosAtingidos.add(alvo);
+                                                pontos+=alvo.getPontos();
+                                                checkAlvosEspeciais(alvo);
+
+                                            } else if(alvo.acertouChao()){
+                                                alvosAtingidos.add(alvo);
+                                                vidas--;
+                                                checkEndGame();
+                                            }
+                                        }
                                     }
                                 }
-
-                                /*// calculando a velocidade atual
-                                double velocidadeX = 10f * Math.cos( Math.toRadians(angulo) ) * tempo;
-
-                                // precisa inverter y por causa do sistema de coordenadas.
-                                double velocidadeY = - 10f * Math.sin(Math.toRadians(angulo)) * tempo;
-
-                                projetil.setVelocidadeX((float) velocidadeX);
-                                projetil.setVelocidadeY((float) velocidadeY);
-
-                                projetil.setX( projetil.getX() + projetil.getVelocidadeX() );
-                                projetil.setY( projetil.getY() + projetil.getVelocidadeY() );
-
-                                tempo += 1;*/
-
-
-
                             }
+                            else {
+                                Log.i("LOG", "Projetil vazio");
+                                if(!alvos.isEmpty()) {
+                                    for (Alvo alvo : alvos) {
 
+                                        if (alvo.acertouChao()) {
+                                            alvosAtingidos.add(alvo);
+                                            vidas--;
+                                            checkEndGame();
+                                        }
+                                    }
+                                }
+                            }
 
                             publishProgress();
                             Thread.sleep(1000 / QUADROS_POR_SEGUNDO);
-
                         }
 
                     } catch ( InterruptedException exc ) {
                         exc.printStackTrace();
                     }
-
                     return null;
-
                 }
 
                 @Override
                 protected void onProgressUpdate(Void... values) {
-                    //limparProjetil();
                     invalidate();
                 }
 
                 @Override
                 protected void onPostExecute(Void aVoid) {
-                    if(vidas==0){
+                    if(vidas==0 ||acertouBomba){
                         Toast.makeText(getContext(), "Fim de jogo", Toast.LENGTH_LONG).show();
                     }
                 }
@@ -274,8 +274,16 @@ public class GameView extends View {
 
         }
 
+    }
 
-
+    private void checkAlvosEspeciais(Alvo alvo) {
+        if(alvo.getTipoAlvo().equals(Alvo.tipo.VIDA)) {
+            vidas++;
+        }
+        if (alvo.getTipoAlvo().equals(Alvo.tipo.BOMBA)) {
+            acertouBomba = true;
+            parar();
+        }
     }
 
     private void checkEndGame() {
@@ -284,13 +292,30 @@ public class GameView extends View {
         }
     }
 
+    private void restartGame() {
+        pontos = CONFIG_PONTOS;
+        vidas = CONFIG_VIDAS;
+        angulo = CONFIG_ANGULO;
+        acertouBomba = false;
+
+        alvos = new ArrayList<Alvo>();
+        alvosAtingidos = new ArrayList<Alvo>();
+        projetils = new ArrayList<Projetil>();
+
+        projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 20, Color.BLACK , angulo);
+
+        canhao.setAngulo(angulo);
+
+        iniciar();
+    }
+
     private void limparAlvosAtingidos() {
         for(Alvo alvoAtingido : alvosAtingidos){
             alvos.remove(alvoAtingido);
         }
     }
 
-    private void limparProjetil(){
+    private void limparProjeteis(){
         System.out.println(projetils.size());
         for(int i= 0; i < projetils.size(); i++){
             if(!projetils.get(i).isAtirou()){

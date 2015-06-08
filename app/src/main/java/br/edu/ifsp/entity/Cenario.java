@@ -48,8 +48,8 @@ public class Cenario {
 
         // Gramado
         paint.setColor(Color.GRAY);
-        canvas.drawRect( 0, -TAMANHO_GRAMADO, view.getWidth(), 0, paint );
-        //canvas.drawBitmap(grama, 0, -TAMANHO_GRAMADO, paint);
+        //canvas.drawRect( 0, -TAMANHO_GRAMADO, view.getWidth(), 0, paint );
+        canvas.drawBitmap(grama, 0, -TAMANHO_GRAMADO, paint);
     }
 
 }
