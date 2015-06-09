@@ -38,7 +38,7 @@ public class Alvo {
         MEDIO(31,60, 5),
         GRANDE(61,90, 3),
         VIDA(91,95, 0),
-        BOMBA(96,100, 0);
+        BOMBA(96,100, 20); // Pontos somados se a bomba acertar o chão
 
         int chanceMin;
         int chanceMax;

@@ -176,29 +176,6 @@ public class GameView extends View {
                                 }
                             }
 
-                            // Se houver alvos
-                            /*if(!alvos.isEmpty()) {
-                                for (Alvo alvo : alvos) {
-
-                                    // Alterar a velocidade
-                                    alvo.setY(alvo.getY() + alvo.getVelocidadeY());
-                                    alvo.setVelocidadeY(alvo.getVelocidadeY() * alvo.getAtrito() + alvo.getGravidade());
-
-                                    // Checar a colisao
-                                    if(alvo.colidir(projetil)) {
-                                        alvosAtingidos.add(alvo);
-                                        pontos+=alvo.getPontos();
-
-                                        checkAlvosEspeciais(alvo);
-
-                                    } else if(alvo.acertouChao()){
-                                        alvosAtingidos.add(alvo);
-                                        vidas--;
-                                        checkEndGame();
-                                    }
-                                }
-                            }*/
-
                             for (Alvo alvo : alvos) {
                                 // Alterar a velocidade
                                 alvo.setY(alvo.getY() + alvo.getVelocidadeY());
@@ -206,7 +183,7 @@ public class GameView extends View {
                             }
 
                             if (!projetils.isEmpty()) {
-                                Log.i("LOG", "Projetil com " + projetils.size());
+
                                 for (Projetil projetil : projetils) {
                                     projetil.movimento();
 
@@ -222,21 +199,30 @@ public class GameView extends View {
 
                                             // Checar a colisao
                                             if(projetil.colidir(alvo)) {
-                                                alvosAtingidos.add(alvo);
-                                                pontos+=alvo.getPontos();
+                                                if(!alvosAtingidos.contains(alvo)
+                                                        && !alvo.getTipoAlvo().equals(Alvo.tipo.BOMBA)) {
+                                                    alvosAtingidos.add(alvo);
+                                                    pontos += alvo.getPontos();
+                                                }
                                                 checkAlvosEspeciais(alvo);
 
                                             } else if(alvo.acertouChao()){
-                                                alvosAtingidos.add(alvo);
-                                                vidas--;
+                                                if(alvo.getTipoAlvo().equals(Alvo.tipo.BOMBA)) {
+                                                    pontos += alvo.getPontos();
+                                                }
+                                                if(!alvosAtingidos.contains(alvo)){
+                                                    alvosAtingidos.add(alvo);
+                                                    vidas--;
+                                                }
                                                 checkEndGame();
+
                                             }
                                         }
                                     }
                                 }
                             }
                             else {
-                                Log.i("LOG", "Projetil vazio");
+
                                 if(!alvos.isEmpty()) {
                                     for (Alvo alvo : alvos) {
 
