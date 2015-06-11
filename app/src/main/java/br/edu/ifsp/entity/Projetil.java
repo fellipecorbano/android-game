@@ -66,7 +66,6 @@ public class Projetil {
         this.angulo = angulo;
         this.velocidadeX = 5f;
         this.velocidadeY = 5f;
-
     }
 
     /**
@@ -86,10 +85,6 @@ public class Projetil {
 
         // precisa inverter y por causa do sistema de coordenadas.
         double vY = - velocidadeY * Math.sin(Math.toRadians(angulo)) * tempo;
-
-        //projetil.setVelocidadeX((float) velocidadeX);
-        //projetil.setVelocidadeY((float) velocidadeY);
-
         x = (float) (x + vX);
         y = (float) (y + vY);
 

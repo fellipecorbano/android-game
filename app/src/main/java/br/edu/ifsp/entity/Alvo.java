@@ -1,6 +1,8 @@
 package br.edu.ifsp.entity;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -9,6 +11,9 @@ import android.util.Log;
 import android.view.View;
 
 import java.util.Random;
+
+import br.edu.ifsp.androidgame.GameView;
+import br.edu.ifsp.androidgame.R;
 
 /**
  * Created by fcorbano on 02/05/15.
@@ -29,16 +34,18 @@ public class Alvo {
     private tipo tipoAlvo;
     private int cor;
 
+    private Bitmap textura;
+
     /**
      * Enum com os tipos possíveis de alvos
      */
     public enum tipo {
         // NAME(MIN%, MAX%, PONTOS)
-        PEQUENO(0,30, 7),
-        MEDIO(31,60, 5),
-        GRANDE(61,90, 3),
+        PEQUENO(0,30, 5),
+        MEDIO(31,60, 2),
+        GRANDE(61,90, 1),
         VIDA(91,95, 0),
-        BOMBA(96,100, 20); // Pontos somados se a bomba acertar o chão
+        BOMBA(96,100, 1); // Pontos somados se a bomba acertar o chão
 
         int chanceMin;
         int chanceMax;
@@ -67,7 +74,7 @@ public class Alvo {
     /**
      * Construtor com base no tipo de alvo
      */
-    public Alvo(Context context) {
+    public Alvo(Context context, int level) {
 
         Random r = new Random();
 
@@ -83,23 +90,34 @@ public class Alvo {
         float xValue = r.nextFloat() * (max - min) + min;
 
         // Sorteia a velocidade do alvo
-        int vel = r.nextInt(6) + 2;
+        //int vel = r.nextInt(6) + 2 + level;
+        int vel = 7 + level*2;
 
         switch(tipoAlvo) {
             case PEQUENO:
-                setAlvo(xValue, yValue, 30, 0, vel, Color.GREEN, tipo.PEQUENO);
+                textura = BitmapFactory.decodeResource(context.getResources(), R.drawable.alien1);
+                textura = Bitmap.createScaledBitmap(textura, 55, 55, false);
+                setAlvo(xValue, yValue, 30, 0, vel, Color.GREEN, tipo.PEQUENO, textura);
                 break;
             case MEDIO:
-                setAlvo(xValue, yValue, 40, 0, vel, Color.GREEN, tipo.MEDIO);
+                textura = BitmapFactory.decodeResource( context.getResources(), R.drawable.alien2 );
+                textura = Bitmap.createScaledBitmap(textura, 75, 75, false);
+                setAlvo(xValue, yValue, 40, 0, vel, Color.GREEN, tipo.MEDIO, textura);
                 break;
             case GRANDE:
-                setAlvo(xValue, yValue, 50, 0, vel, Color.GREEN, tipo.GRANDE);
+                textura = BitmapFactory.decodeResource( context.getResources(), R.drawable.alien3 );
+                textura = Bitmap.createScaledBitmap(textura, 100, 100, false);
+                setAlvo(xValue, yValue, 50, 0, vel, Color.GREEN, tipo.GRANDE, textura);
                 break;
             case VIDA:
-                setAlvo(xValue, yValue, 30, 0, vel, Color.RED, tipo.VIDA);
+                textura = BitmapFactory.decodeResource( context.getResources(), R.drawable.vida );
+                textura = Bitmap.createScaledBitmap(textura, 75, 75, false);
+                setAlvo(xValue, yValue, 30, 0, vel, Color.RED, tipo.VIDA, textura);
                 break;
             case BOMBA:
-                setAlvo(xValue, yValue, 30, 0, vel, Color.BLACK, tipo.BOMBA);
+                textura = BitmapFactory.decodeResource( context.getResources(), R.drawable.bomba );
+                textura = Bitmap.createScaledBitmap(textura, 90, 90, false);
+                setAlvo(xValue, yValue, 30, 0, vel, Color.BLACK, tipo.BOMBA, textura);
                 break;
         }
     }
@@ -109,8 +127,8 @@ public class Alvo {
      */
     public Alvo(){
         this.raio = 10;
-        this.velocidadeX = 8;
-        this.velocidadeY = 8;
+        this.velocidadeX = 5;
+        this.velocidadeY = 5;
         this.atrito = 0.99f;
         this.elasticidade = 0.9f;
         this.gravidade = 1f;
@@ -151,7 +169,7 @@ public class Alvo {
      * @param velocidadeY
      * @param cor
      */
-    public void setAlvo(float x, float y, float raio, float velocidadeX, float velocidadeY, int cor, tipo tipoAlvo) {
+    public void setAlvo(float x, float y, float raio, float velocidadeX, float velocidadeY, int cor, tipo tipoAlvo, Bitmap textura) {
         this.x = x;
         this.y = y;
         this.raio = raio;
@@ -162,6 +180,7 @@ public class Alvo {
         this.elasticidade = 0.9f;
         this.gravidade = 1f;
         this.tipoAlvo = tipoAlvo;
+        this.textura = textura;
     }
 
     /**
@@ -172,7 +191,25 @@ public class Alvo {
     public void desenhar( Canvas canvas, Paint paint ) {
         paint.setStyle( Paint.Style.FILL );
         paint.setColor(cor);
-        canvas.drawCircle( x, y, raio, paint );
+       // canvas.drawCircle( x, y, raio, paint );
+
+        switch(tipoAlvo) {
+            case PEQUENO:
+                canvas.drawBitmap( textura, x-raio, y-raio, paint );
+                break;
+            case MEDIO:
+                canvas.drawBitmap( textura, x-raio, y-raio, paint );
+                break;
+            case GRANDE:
+                canvas.drawBitmap( textura, x-raio, y-raio, paint );
+                break;
+            case VIDA:
+                canvas.drawBitmap( textura, x-40, y-40, paint );
+                break;
+            case BOMBA:
+                canvas.drawBitmap( textura, x-50, y-50, paint );
+                break;
+        }
     }
 
     public boolean colidir(Projetil projetil) {

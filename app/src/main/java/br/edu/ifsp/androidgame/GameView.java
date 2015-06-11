@@ -1,6 +1,8 @@
 package br.edu.ifsp.androidgame;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -20,6 +22,7 @@ import br.edu.ifsp.entity.Canhao;
 import br.edu.ifsp.entity.Cenario;
 import br.edu.ifsp.entity.Projetil;
 
+
 /**
  * Created by fcorbano on 02/05/15.
  */
@@ -30,6 +33,7 @@ public class GameView extends View {
     private static final int CONFIG_VIDAS = 5;
     private static final int CONFIG_PONTOS = 0;
     private static final int CONFIG_ANGULO = 90;
+    private static final int LEVEL_INICIAL = 1;
 
     private Paint paint = new Paint();
 
@@ -41,18 +45,25 @@ public class GameView extends View {
 
     private static int vidas;
     private static int pontos;
+    private static int level;
 
     private Cenario cenario;
     private Projetil projetil;
     private Canhao canhao;
+
     private List<Alvo> alvos = new ArrayList<Alvo>();
     private List<Alvo> alvosAtingidos = new ArrayList<Alvo>();
     private List<Projetil> projetils = new ArrayList<Projetil>();
+    private List<Projetil> projetilsAtingidos = new ArrayList<Projetil>();
+
+    private boolean atingiuSprite;
 
     private float xClique;
-
-    private boolean atirou=false;
     private boolean acertouBomba=false;
+
+    private Bitmap desenhoVida;
+    private Bitmap desenhoExplosao;
+
 
 
     public GameView(Context context) {
@@ -62,10 +73,17 @@ public class GameView extends View {
         angulo = CONFIG_ANGULO;
         vidas = CONFIG_VIDAS;
         pontos = CONFIG_PONTOS;
+        level = LEVEL_INICIAL;
+
+        atingiuSprite = false;
+
+        desenhoVida = BitmapFactory.decodeResource(context.getResources(), R.drawable.vida);
+        desenhoExplosao = BitmapFactory.decodeResource(context.getResources(), R.drawable.explosion_transparent);
 
         cenario = new Cenario(context, this);
         canhao =  new Canhao(context);
         projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 20, Color.BLACK , angulo);
+
 
 
         setOnTouchListener(new OnTouchListener() {
@@ -76,7 +94,6 @@ public class GameView extends View {
 
                     case MotionEvent.ACTION_DOWN:
                         if (executando) {
-                            atirou = false;
                             projetil = new Projetil(Projetil.POS_X, Projetil.POS_Y, 20, Color.BLACK, angulo);
                             xClique = event.getX();
                         } else {
@@ -86,8 +103,6 @@ public class GameView extends View {
 
                     case MotionEvent.ACTION_UP:
                         if (executando) {
-                            atirou = true;
-                            projetil.setAtirou(true);
                             projetils.add(projetil);
                             canhao.disparar();
                         }
@@ -117,12 +132,11 @@ public class GameView extends View {
         // Cenário
         cenario.desenhar(canvas, paint);
 
-        if(!atirou) {
-            float catAdj = (float) (Math.cos(Math.toRadians(angulo)) * 80);
-            float catOp = (float) (Math.sin(Math.toRadians(angulo)) * 80) - 10;
-            projetil.setX(Projetil.POS_X + catAdj);
-            projetil.setY(Projetil.POS_Y - catOp);
-        }
+        // Projetil na ponta do canhão
+        float catAdj = (float) (Math.cos(Math.toRadians(angulo)) * 80);
+        float catOp = (float) (Math.sin(Math.toRadians(angulo)) * 80) - 10;
+        projetil.setX(Projetil.POS_X + catAdj);
+        projetil.setY(Projetil.POS_Y - catOp);
 
         // Alvos
         for(Alvo alvo : alvos) {
@@ -141,9 +155,16 @@ public class GameView extends View {
         canhao.desenhar(canvas, paint);
 
         // Dados do jogo
+        paint.setStyle(Paint.Style.FILL);
+        canvas.drawRect(0, -1550, getWidth(), -1450, paint);
         paint.setTextSize(46);
-        canvas.drawText("Pontos: " + pontos, 30, -30, paint);
-        canvas.drawText("Vidas: " + vidas, getWidth() - 200, -30, paint);
+        paint.setColor(Color.WHITE);
+        canvas.drawText("Pontos: " + pontos, 30, -1475, paint);
+        canvas.drawText("Level: " + level, (getWidth() / 2) - 100, -1475, paint);
+        canvas.drawText("X " + vidas, getWidth() - 100, -1475, paint);
+
+        desenhoVida = Bitmap.createScaledBitmap(desenhoVida, 77, 77, false);
+        canvas.drawBitmap( desenhoVida, getWidth()-185, -1530, paint );
     }
 
     public void iniciar() {
@@ -164,22 +185,23 @@ public class GameView extends View {
                             largura = getWidth();
                             altura = getHeight();
 
+                            verificaPontos();
                             limparAlvosAtingidos();
-                            limparProjeteis();
+                            limparProjeteisAtingidos();
 
                             // Sorteia com 3% de chances de sair um alvo
                             // Podem ter no máximo 5 alvos por vez na tela
                             Random r = new Random();
                             if(alvos.size() < 5) {
                                 if (r.nextInt(100) < 3) {
-                                    alvos.add(new Alvo(getContext()));
+                                    alvos.add(new Alvo(getContext(), level));
                                 }
                             }
 
                             for (Alvo alvo : alvos) {
                                 // Alterar a velocidade
                                 alvo.setY(alvo.getY() + alvo.getVelocidadeY());
-                                alvo.setVelocidadeY(alvo.getVelocidadeY() * alvo.getAtrito() + alvo.getGravidade());
+                                //alvo.setVelocidadeY(alvo.getVelocidadeY() * alvo.getAtrito() + alvo.getGravidade());
                             }
 
                             if (!projetils.isEmpty()) {
@@ -190,7 +212,7 @@ public class GameView extends View {
                                     if (projetil.getXFim() >= largura ||
                                             projetil.getXIni() <= 0 ||
                                             projetil.getYIni() >= altura) {
-                                        projetil.setAtirou(false);
+                                        projetilsAtingidos.add(projetil);
                                     }
 
                                     // Para o projetil corrente, verificar se colidiu com algum dos alvos
@@ -199,10 +221,9 @@ public class GameView extends View {
 
                                             // Checar a colisao
                                             if(projetil.colidir(alvo)) {
-                                                if(!alvosAtingidos.contains(alvo)
-                                                        && !alvo.getTipoAlvo().equals(Alvo.tipo.BOMBA)) {
+                                                if(!alvosAtingidos.contains(alvo)) {
                                                     alvosAtingidos.add(alvo);
-                                                    pontos += alvo.getPontos();
+                                                    projetilsAtingidos.add(projetil);
                                                 }
                                                 checkAlvosEspeciais(alvo);
 
@@ -252,7 +273,7 @@ public class GameView extends View {
 
                 @Override
                 protected void onPostExecute(Void aVoid) {
-                    if(vidas==0 ||acertouBomba){
+                    if(vidas==0){
                         Toast.makeText(getContext(), "Fim de jogo", Toast.LENGTH_LONG).show();
                     }
                 }
@@ -267,14 +288,17 @@ public class GameView extends View {
             vidas++;
         }
         if (alvo.getTipoAlvo().equals(Alvo.tipo.BOMBA)) {
-            acertouBomba = true;
-            parar();
+
+            vidas--;
         }
+        else
+            pontos += alvo.getPontos();
     }
 
     private void checkEndGame() {
-        if(vidas == 0) {
+        if(vidas <= 0) {
             parar();
+            level = LEVEL_INICIAL;
         }
     }
 
@@ -287,6 +311,7 @@ public class GameView extends View {
         alvos = new ArrayList<Alvo>();
         alvosAtingidos = new ArrayList<Alvo>();
         projetils = new ArrayList<Projetil>();
+        projetilsAtingidos = new ArrayList<Projetil>();
 
         projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 20, Color.BLACK , angulo);
 
@@ -301,15 +326,21 @@ public class GameView extends View {
         }
     }
 
-    private void limparProjeteis(){
-        System.out.println(projetils.size());
-        for(int i= 0; i < projetils.size(); i++){
-            if(!projetils.get(i).isAtirou()){
-                projetils.remove(i);
+    private void limparProjeteisAtingidos(){
+            for(Projetil projetilAtingido : projetilsAtingidos){
+                projetils.remove(projetilAtingido);
             }
-        }
-        System.out.println(projetils.size());
+    }
 
+    private void verificaPontos(){
+        if(pontos >= 50)
+            level = 2;
+        if(pontos >= 100)
+            level = 3;
+        if(pontos >= 150)
+            level = 4;
+        if(pontos >= 200)
+            level = 5;
     }
 
     public void parar() {
