@@ -84,7 +84,7 @@ public class GameView extends View {
         canhao =  new Canhao(context);
         projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 20, Color.BLACK , angulo);
 
-
+        cenario.initBackgroundSound(context);
 
         setOnTouchListener(new OnTouchListener() {
             @Override
@@ -221,6 +221,8 @@ public class GameView extends View {
 
                                             // Checar a colisao
                                             if(projetil.colidir(alvo)) {
+                                                alvo.playAlvoSound();
+
                                                 if(!alvosAtingidos.contains(alvo)) {
                                                     alvosAtingidos.add(alvo);
                                                     projetilsAtingidos.add(projetil);

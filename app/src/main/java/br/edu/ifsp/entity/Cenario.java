@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.view.View;
 
 import br.edu.ifsp.androidgame.R;
@@ -19,6 +21,8 @@ public class Cenario {
 
     private Bitmap grama;
     private View view;
+    private SoundPool background;
+    private int backgroundId;
 
     /**
      * Construtor default
@@ -31,6 +35,16 @@ public class Cenario {
 
         // Armazena a view
         this.view = view;
+    }
+
+    /**
+     * Init background sound
+     */
+    public void initBackgroundSound(Context context) {
+        // Carregar som de fundo
+        background = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+        backgroundId = background.load(context, R.raw.background, 1);
+        background.play(backgroundId, 5, 5, 1, 0, 1f);
     }
 
     /**

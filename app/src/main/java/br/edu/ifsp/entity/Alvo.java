@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -35,6 +37,9 @@ public class Alvo {
     private int cor;
 
     private Bitmap textura;
+
+    private SoundPool alvoSound;
+    private int alvoSoundId;
 
     /**
      * Enum com os tipos possíveis de alvos
@@ -98,26 +103,31 @@ public class Alvo {
                 textura = BitmapFactory.decodeResource(context.getResources(), R.drawable.alien1);
                 textura = Bitmap.createScaledBitmap(textura, 55, 55, false);
                 setAlvo(xValue, yValue, 30, 0, vel, Color.GREEN, tipo.PEQUENO, textura);
+                initAlvoSound(context, R.raw.explosion);
                 break;
             case MEDIO:
                 textura = BitmapFactory.decodeResource( context.getResources(), R.drawable.alien2 );
                 textura = Bitmap.createScaledBitmap(textura, 75, 75, false);
                 setAlvo(xValue, yValue, 40, 0, vel, Color.GREEN, tipo.MEDIO, textura);
+                initAlvoSound(context, R.raw.explosion);
                 break;
             case GRANDE:
                 textura = BitmapFactory.decodeResource( context.getResources(), R.drawable.alien3 );
                 textura = Bitmap.createScaledBitmap(textura, 100, 100, false);
                 setAlvo(xValue, yValue, 50, 0, vel, Color.GREEN, tipo.GRANDE, textura);
+                initAlvoSound(context, R.raw.explosion);
                 break;
             case VIDA:
                 textura = BitmapFactory.decodeResource( context.getResources(), R.drawable.vida );
                 textura = Bitmap.createScaledBitmap(textura, 75, 75, false);
                 setAlvo(xValue, yValue, 30, 0, vel, Color.RED, tipo.VIDA, textura);
+                initAlvoSound(context, R.raw.explosion);
                 break;
             case BOMBA:
                 textura = BitmapFactory.decodeResource( context.getResources(), R.drawable.bomba );
                 textura = Bitmap.createScaledBitmap(textura, 90, 90, false);
                 setAlvo(xValue, yValue, 30, 0, vel, Color.BLACK, tipo.BOMBA, textura);
+                initAlvoSound(context, R.raw.bomb);
                 break;
         }
     }
@@ -125,7 +135,7 @@ public class Alvo {
     /**
      * Construtor default
      */
-    public Alvo(){
+    /*public Alvo(){
         this.raio = 10;
         this.velocidadeX = 5;
         this.velocidadeY = 5;
@@ -134,7 +144,7 @@ public class Alvo {
         this.gravidade = 1f;
         this.cor = Color.BLACK;
         this.tipoAlvo = tipo.sorteiaTipo();
-    }
+    }*/
 
     /**
      * Construtor Alvo
@@ -146,7 +156,7 @@ public class Alvo {
      * @param velocidadeY
      * @param cor
      */
-    public Alvo(float x, float y, float raio, float velocidadeX, float velocidadeY, int cor) {
+    /*public Alvo(float x, float y, float raio, float velocidadeX, float velocidadeY, int cor) {
         this.x = x;
         this.y = y;
         this.raio = raio;
@@ -157,7 +167,7 @@ public class Alvo {
         this.atrito = 0.99f;
         this.elasticidade = 0.9f;
         this.gravidade = 1f;
-    }
+    }*/
 
     /**
      * Setar um alvo
@@ -181,6 +191,23 @@ public class Alvo {
         this.gravidade = 1f;
         this.tipoAlvo = tipoAlvo;
         this.textura = textura;
+    }
+
+    /**
+     * Inicializar o som do alvo
+     * @param context
+     * @param res
+     */
+    public void initAlvoSound(Context context, int res) {
+        alvoSound = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+        alvoSoundId = alvoSound.load(context, res, 1);
+    }
+
+    /**
+     * Play no som do alvo
+     */
+    public void playAlvoSound() {
+        alvoSound.play(alvoSoundId, 5, 5, 1, 0, 1f);
     }
 
     /**
