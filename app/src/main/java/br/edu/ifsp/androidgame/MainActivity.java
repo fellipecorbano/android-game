@@ -41,4 +41,22 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        gameView.parar();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        gameView.parar();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        gameView.resume();
+    }
 }

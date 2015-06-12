@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -64,8 +65,6 @@ public class GameView extends View {
     private Bitmap desenhoVida;
     private Bitmap desenhoExplosao;
 
-
-
     public GameView(Context context) {
         super(context);
         paint.setAntiAlias(true);
@@ -83,8 +82,6 @@ public class GameView extends View {
         cenario = new Cenario(context, this);
         canhao =  new Canhao(context);
         projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 20, Color.BLACK , angulo);
-
-        cenario.initBackgroundSound(context);
 
         setOnTouchListener(new OnTouchListener() {
             @Override
@@ -299,6 +296,7 @@ public class GameView extends View {
 
     private void checkEndGame() {
         if(vidas <= 0) {
+            cenario.playGameOverSound();
             parar();
             level = LEVEL_INICIAL;
         }
@@ -318,6 +316,8 @@ public class GameView extends View {
         projetil = new Projetil( Projetil.POS_X, Projetil.POS_Y, 20, Color.BLACK , angulo);
 
         canhao.setAngulo(angulo);
+
+        cenario.startBackgroundSound();
 
         iniciar();
     }
@@ -346,6 +346,11 @@ public class GameView extends View {
     }
 
     public void parar() {
+        cenario.stopBackgroundSound();
         executando = false;
+    }
+
+    public void resume() {
+        cenario.startBackgroundSound();
     }
 }

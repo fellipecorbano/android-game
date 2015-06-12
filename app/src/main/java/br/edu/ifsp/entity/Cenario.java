@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.view.View;
 
@@ -21,8 +22,9 @@ public class Cenario {
 
     private Bitmap grama;
     private View view;
-    private SoundPool background;
-    private int backgroundId;
+    private MediaPlayer bgsound = new MediaPlayer();
+    private SoundPool gameOverSound;
+    private int gameOverSoundId;
 
     /**
      * Construtor default
@@ -33,18 +35,35 @@ public class Cenario {
         // Grama
         grama = BitmapFactory.decodeResource(context.getResources(), R.drawable.grama);
 
+        // Game over sound
+        gameOverSound = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+        gameOverSoundId = gameOverSound.load(context, R.raw.gameover, 1);
+
+        // Background sound
+        bgsound = MediaPlayer.create(context, R.raw.background);
+        bgsound.setLooping(true);
+        bgsound.setVolume(100, 100);
+        bgsound.start();
+
         // Armazena a view
         this.view = view;
     }
 
     /**
-     * Init background sound
+     * Handle game over sound
      */
-    public void initBackgroundSound(Context context) {
-        // Carregar som de fundo
-        background = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
-        backgroundId = background.load(context, R.raw.background, 1);
-        background.play(backgroundId, 5, 5, 1, 0, 1f);
+    public void playGameOverSound() {
+        gameOverSound.play(gameOverSoundId, 5, 5, 1, 0, 1f);
+    }
+
+    /**
+     * Handle background sound
+     */
+    public void startBackgroundSound() {
+        bgsound.start();
+    }
+    public void stopBackgroundSound() {
+        bgsound.stop();
     }
 
     /**
